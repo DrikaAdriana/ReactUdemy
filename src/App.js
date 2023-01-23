@@ -1,14 +1,44 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect, useMemo, useCallback} from 'react';
 
 const App = () => {
+  const [tarefas, setTarefas] = useState([]);
+  const [input, setInput] = useState('');
   
 
+  useEffect(()=>{
+    const tarefasStorage = localStorage.getItem('tarefas');
+    if(tarefasStorage){
+      setTarefas(JSON.parse(tarefasStorage));
+    }
+  }, []);
+
+
+  useEffect(()=> {
+    localStorage.setItem('tarefas', JSON.stringify(tarefas))
+  }, [tarefas]);//essa função transforma a state (um arraytarefas) em string para armazenar no local Storage
+
+
+  const handleAdd = useCallback(() => {
+    setTarefas([...tarefas, input]);
+    setInput('');
+  }, [input, tarefas]);
+
+  const totalTarefas = useMemo(()=> tarefas.length, [tarefas]);
+  
   return(
     <div>
-       <h1>Hooks</h1>
+       <ul>
+         {tarefas.map(tarefa => (
+           <li key={tarefa}>{tarefa}</li>
+         ))}
+       </ul>
+       <br/>
+       <strong>Você tem {totalTarefas} tarefa(s)!!</strong><br/>
+       <input type='text' value={input} onChange={e => setInput(e.target.value)}/>
+       <button type='button' onClick={handleAdd}>Adicionar</button>
     </div>
   );
 }
 
-export default App
+export default App;
 
